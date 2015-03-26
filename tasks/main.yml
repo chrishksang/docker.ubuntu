@@ -101,16 +101,17 @@
 - name: Install pip python package
   apt:
     pkg: "{{ item }}"
-    state: latest
     update_cache: yes
     cache_valid_time: 600
   with_items:
     - python-dev
     - python-pip
+  when: "docker_py == true"
 
 - name: Install Docker-py
-  pip: 
+  pip:
     name: docker-py
+  when: "docker_py == true"
 
 - name: Check if /etc/updatedb.conf exists
   stat: 
