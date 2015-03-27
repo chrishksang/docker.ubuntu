@@ -16,6 +16,7 @@
     - linux-headers-generic-lts-raring
   register: kernel_result
   when: "ansible_distribution_version == '12.04'"
+  sudo: yes
 
 - name: Install latest kernel extras for Ubuntu 13.04+
   apt:
@@ -24,6 +25,7 @@
     update_cache: yes
     cache_valid_time: 600
   when: "ansible_distribution_version == '13.04' or ansible_distribution_version == '13.10'"
+  sudo: yes
 
 # Fix for https://github.com/dotcloud/docker/issues/4568
 - name: Install cgroup-lite for Ubuntu 13.10
@@ -34,6 +36,7 @@
     cache_valid_time: 600
   register: cgroup_lite_result
   when: "ansible_distribution_version == '13.10'"
+  sudo: yes
 
 - name: Reboot instance
   command: /sbin/shutdown -r now
@@ -57,12 +60,14 @@
     id: "{{ apt_key_sig }}"
     url: "{{ apt_key_url }}"
     state: present
+  sudo: yes
 
 - name: Add Docker repository and update apt cache
   apt_repository:
     repo: "{{ apt_repository }}"
     update_cache: yes
     state: present
+  sudo: yes
 
 - name: Install (or update) docker package
   apt: 
@@ -70,6 +75,7 @@
     state: latest
     update_cache: yes
     cache_valid_time: 600
+  sudo: yes
 
 - name: Set docker daemon options
   copy:
@@ -81,6 +87,7 @@
   notify:
     - Reload docker
   when: docker_opts != ""
+  sudo: yes
 
 - name: Fix DNS in docker.io
   lineinfile: 
@@ -90,6 +97,7 @@
   register: dns_fix
   notify: Restart dockerio
   when: docker_pkg_name == 'docker.io'
+  sudo: yes
 
 - meta: flush_handlers
   when: "dns_fix|changed"
@@ -107,10 +115,14 @@
   with_items:
     - python-dev
     - python-pip
+  sudo: yes
+  when: "docker_py == true"
 
 - name: Install Docker-py
   pip: 
     name: docker-py
+  sudo: yes
+  when: "docker_py == true"
 
 - name: Check if /etc/updatedb.conf exists
   stat: 
@@ -139,9 +151,11 @@
     name: docker
     state: started
   when: docker_pkg_name == 'lxc-docker'
+  sudo: yes
 
 - name: Start docker.io
   service:
     name: docker.io
     state: started
   when: docker_pkg_name == 'docker.io'
+  sudo: yes
