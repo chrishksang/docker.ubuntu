@@ -109,7 +109,6 @@
 - name: Install pip python package
   apt:
     pkg: "{{ item }}"
-    state: latest
     update_cache: yes
     cache_valid_time: 600
   with_items:
@@ -119,7 +118,7 @@
   when: "docker_py == true"
 
 - name: Install Docker-py
-  pip: 
+  pip:
     name: docker-py
   sudo: yes
   when: "docker_py == true"

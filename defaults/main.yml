@@ -23,3 +23,6 @@ apt_repository: deb http://get.docker.io/ubuntu docker main
 docker_opts: ""
 
 #docker_version: 1.2.0
+
+# Toggle installing docker-py
+docker_py: false
